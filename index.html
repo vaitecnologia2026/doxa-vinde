@@ -78,7 +78,7 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
 .slide.m>*{position:relative;z-index:1}
 .slide.m .cena,.slide.m .foto,.slide.m .veu,.slide.m .cruz{position:absolute;inset:0;z-index:0}
 .slide.m .foto{background:center/cover no-repeat}
-.slide.m .foto.direita{background-position:right center}
+.slide.m .foto.direita{background-position:right center;background-size:auto 100%}
 .slide.m .foto.escura{filter:brightness(.45) blur(6px);transform:scale(1.04)}
 .slide.m .veu{background:linear-gradient(90deg,rgba(5,6,8,.96) 0%,rgba(5,6,8,.82) 40%,rgba(5,6,8,.25) 100%)}
 .slide.m.centro .veu{background:linear-gradient(180deg,rgba(5,6,8,.55),rgba(5,6,8,.78))}
@@ -197,6 +197,18 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
 .mini .num{position:absolute;left:8px;top:6px;z-index:2;font-family:var(--serif-titulo);font-weight:600;font-size:14px;background:rgba(0,0,0,.55);padding:2px 8px;border-radius:999px}
 .mini .titulo-mini{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:12px;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,.75));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini .palco-wrap{pointer-events:none}
+.faixa .rotulo .acoes{display:flex;gap:8px;align-items:center}
+.mini-acao{background:var(--painel-2);border:1px solid var(--borda);color:var(--creme);border-radius:8px;padding:5px 12px;font-family:var(--serif-texto);font-size:14px;letter-spacing:.02em;cursor:pointer;text-transform:none}
+.mini-acao:hover{border-color:var(--creme-suave)}
+.mini-acao.ativo{background:var(--creme);border-color:var(--creme);color:var(--tinta);font-weight:600}
+.lista.reordenando .mini{cursor:default}
+.lista.reordenando .mini:hover{transform:none}
+.lista.reordenando .mini .palco-wrap{filter:brightness(.7)}
+.mini .mover{display:none;position:absolute;left:6px;right:6px;top:50%;transform:translateY(-50%);z-index:3;justify-content:space-between;pointer-events:none}
+.lista.reordenando .mini .mover{display:flex}
+.mini .mv{pointer-events:auto;width:40px;height:44px;border-radius:10px;border:1px solid var(--borda);background:rgba(0,0,0,.62);color:var(--creme);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mini .mv:active{background:var(--creme);color:var(--tinta)}
+.mini .mv:disabled{opacity:.25;cursor:default}
 .controle footer{border-top:1px solid var(--borda);background:var(--painel-2);padding:12px 22px 10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-bottom:max(10px,env(safe-area-inset-bottom))}
 .controle footer .btn{font-size:18px;padding:12px 20px}
 .controle footer .btn.grande{font-size:20px;padding:14px 30px}
@@ -215,7 +227,8 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
   #bloco-prox .rotulo:first-child{display:none}
   .notas{font-size:17px;min-height:0}
   .faixa{padding:8px 14px 8px}
-  .faixa .rotulo{display:none}
+  .faixa .rotulo{margin-bottom:6px}
+  .faixa .rotulo>span{display:none}
   .mini{flex-basis:132px}
   .mini .titulo-mini{display:none}
   .controle footer{padding:10px 14px;gap:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
@@ -241,7 +254,7 @@ const SLIDES = [
     nota:'Abertura: nome DOXA e o subtítulo. Em seguida, a mensagem.' },
 
   /* ===== MENSAGEM 2 — "O QUE MANDA EM MIM?" (público 10 a 17 anos) ===== */
-  { tipo:'m', layout:'abertura', cena:'noite', rotulo:'M1 · Quem manda em quem?',
+  { tipo:'m', layout:'abertura', cena:'noite', rotulo:'M1 · Quem manda em quem?', img:'img/celular.jpg', imgPos:'direita',
     titulo:'QUEM <b>MANDA</b>\nEM QUEM?',
     nota:'Pergunta de abertura.' },
 
@@ -407,10 +420,61 @@ function montarPalco(container, i, opts={}){
    ===================================================================== */
 const CHAVE = 'doxa.vinde.estado';
 const CHAVE_CODIGO = 'doxa.vinde.codigo';
+const CHAVE_ORDEM = 'doxa.vinde.ordem';
 const canal = ('BroadcastChannel' in window) ? new BroadcastChannel('doxa-vinde') : null;
 let estado = lerEstadoLocal();
 let codigo = '';
 try{ codigo = localStorage.getItem(CHAVE_CODIGO) || ''; }catch(_){}
+
+/* ordem de exibição das telas — reorganizável no controle.
+   A nuvem (DB) guarda sempre o número ORIGINAL da tela; a ordem só muda a
+   sequência de avançar/voltar e a lista, e é sincronizada entre as janelas. */
+function ordemPadrao(){ return SLIDES.map((_,i)=>i); }
+function lerOrdem(){
+  try{ const a = JSON.parse(localStorage.getItem(CHAVE_ORDEM)||'null');
+    if(Array.isArray(a) && a.length===SLIDES.length && a.every(n=>Number.isInteger(n)&&n>=0&&n<SLIDES.length) && new Set(a).size===a.length) return a;
+  }catch(_){}
+  return ordemPadrao();
+}
+let ordem = lerOrdem();
+let reordenando = false;
+function guardarOrdem(){ try{ localStorage.setItem(CHAVE_ORDEM, JSON.stringify(ordem)); }catch(_){} }
+function aplicarOrdem(a){ if(Array.isArray(a) && a.length===SLIDES.length && new Set(a).size===a.length) ordem = a.slice(); }
+const posDe = i => { const p = ordem.indexOf(i); return p<0 ? 0 : p; };
+const idxNaPos = p => ordem[Math.min(Math.max(p,0), ordem.length-1)];
+function moverTela(canonIdx, dir){
+  const p = ordem.indexOf(canonIdx); if(p<0) return;
+  const np = p + dir; if(np<0 || np>=ordem.length) return;
+  const t = ordem[p]; ordem[p] = ordem[np]; ordem[np] = t;
+  guardarOrdem();
+  canal && canal.postMessage({ordem: ordem.slice()});
+  montarLista();
+}
+function restaurarOrdem(){
+  ordem = ordemPadrao(); guardarOrdem();
+  canal && canal.postMessage({ordem: ordem.slice()});
+  montarLista();
+}
+function montarLista(){
+  const lista = document.getElementById('lista'); if(!lista) return;
+  lista.classList.toggle('reordenando', reordenando);
+  lista.innerHTML = '';
+  ordem.forEach((idx, pos)=>{
+    const s = SLIDES[idx];
+    const m = document.createElement('div'); m.className='mini'; m.dataset.i = idx;
+    m.innerHTML = `<div class="num">${pos+1}</div><div class="palco-wrap"></div>`
+      + `<div class="mover"><button type="button" class="mv" data-dir="-1" aria-label="Mover para trás">&#9664;</button><button type="button" class="mv" data-dir="1" aria-label="Mover para frente">&#9654;</button></div>`
+      + `<div class="titulo-mini">${esc(s.rotulo||s.tipo)}</div>`;
+    montarPalco(m.querySelector('.palco-wrap'), idx);
+    const bAnt = m.querySelector('[data-dir="-1"]'), bDep = m.querySelector('[data-dir="1"]');
+    bAnt.disabled = pos===0; bDep.disabled = pos===ordem.length-1;
+    bAnt.onclick = e=>{ e.stopPropagation(); moverTela(idx,-1); };
+    bDep.onclick = e=>{ e.stopPropagation(); moverTela(idx, 1); };
+    m.onclick = ()=>{ if(!reordenando) irPara(idx); };
+    m.classList.toggle('atual', idx===estado.i);
+    lista.appendChild(m);
+  });
+}
 let semNuvem = false;          // usuário escolheu operar só nesta máquina
 let seqNuvem = 0;              // último seq confirmado pela nuvem
 let nuvemOk = null;            // null = ainda não testou; true/false
@@ -505,6 +569,7 @@ if(canal){
     const m = e.data || {};
     if(m.ping){ if(modo()==='telao') canal.postMessage({pong:1}); return; }
     if(m.pong){ ultimoPong = Date.now(); atualizarStatus(); return; }
+    if(Array.isArray(m.ordem)){ aplicarOrdem(m.ordem); guardarOrdem(); if(modo()==='controle' && montado==='controle') montarLista(); return; }
     if(!Number.isInteger(m.i)) return;
     ultimoLocalT = Date.now();
     if(m.confirmado && Number(m.seq) > seqNuvem) seqNuvem = Number(m.seq);
@@ -514,9 +579,10 @@ if(canal){
   window.addEventListener('storage', e=>{ if(e.key===CHAVE && e.newValue){ try{ const n=JSON.parse(e.newValue); ultimoLocalT = Date.now(); aplicar({i:n.i, preto:!!n.preto}); }catch(_){} } });
 }
 window.addEventListener('storage', e=>{ if(e.key===CHAVE_CODIGO){ codigo = e.newValue || ''; } });
+window.addEventListener('storage', e=>{ if(e.key===CHAVE_ORDEM){ ordem = lerOrdem(); if(modo()==='controle' && montado==='controle') montarLista(); } });
 
-const proximo = ()=> publicar({i:estado.i+1, preto:false});
-const anterior = ()=> publicar({i:estado.i-1, preto:false});
+const proximo = ()=> publicar({i: idxNaPos(posDe(estado.i)+1), preto:false});
+const anterior = ()=> publicar({i: idxNaPos(posDe(estado.i)-1), preto:false});
 const irPara = i => publicar({i, preto:false});
 const alternarPreto = ()=> publicar({i:estado.i, preto:!estado.preto});
 
@@ -526,7 +592,7 @@ function teclas(e){
   if(k==='ArrowRight'||k==='ArrowDown'||k===' '||k==='PageDown'||k==='Enter'){ e.preventDefault(); proximo(); }
   else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){ e.preventDefault(); anterior(); }
   else if(k==='Home'){ e.preventDefault(); irPara(0); }
-  else if(k==='End'){ e.preventDefault(); irPara(SLIDES.length-1); }
+  else if(k==='End'){ e.preventDefault(); irPara(idxNaPos(ordem.length-1)); }
   else if(k==='b'||k==='B'||k==='.'){ e.preventDefault(); alternarPreto(); }
   else if(k==='f'||k==='F'){ e.preventDefault(); telaCheia(); }
 }
@@ -645,7 +711,7 @@ function renderControle(){
         </div>
       </main>
       <div class="faixa">
-        <div class="rotulo"><span>Todas as telas</span><span>${SLIDES.length} telas</span></div>
+        <div class="rotulo"><span>Todas as telas</span><span class="acoes"><button class="mini-acao" id="b-restaurar" type="button" hidden>Restaurar ordem</button><button class="mini-acao" id="b-reordenar" type="button">Reorganizar</button></span></div>
         <div class="lista" id="lista"></div>
       </div>
       <footer>
@@ -662,14 +728,16 @@ function renderControle(){
     document.getElementById('b-prox').onclick=proximo;
     document.getElementById('b-preto').onclick=alternarPreto;
     document.getElementById('b-inicio').onclick=()=>irPara(0);
-    const lista=document.getElementById('lista');
-    SLIDES.forEach((s,i)=>{
-      const m=document.createElement('div'); m.className='mini'; m.dataset.i=i;
-      m.innerHTML=`<div class="num">${i+1}</div><div class="palco-wrap"></div><div class="titulo-mini">${esc(s.rotulo||s.tipo)}</div>`;
-      montarPalco(m.querySelector('.palco-wrap'), i);
-      m.onclick=()=>irPara(i);
-      lista.appendChild(m);
-    });
+    montarLista();
+    const bReord=document.getElementById('b-reordenar'), bRest=document.getElementById('b-restaurar');
+    bReord.onclick=()=>{
+      reordenando=!reordenando;
+      bReord.textContent=reordenando?'Concluir':'Reorganizar';
+      bReord.classList.toggle('ativo', reordenando);
+      bRest.hidden=!reordenando;
+      montarLista();
+    };
+    bRest.onclick=restaurarOrdem;
     // deslizar na prévia: esquerda = próximo, direita = anterior
     const agora = document.getElementById('palco-agora'); let x0=null, y0=null;
     agora.addEventListener('touchstart', e=>{ const t=e.touches[0]; x0=t.clientX; y0=t.clientY; }, {passive:true});
@@ -682,16 +750,18 @@ function renderControle(){
     window.addEventListener('pointerdown', manterAcordado, {once:true});
   }
   const i=estado.i;
-  const rot = j => SLIDES[j] ? `${j+1}. ${SLIDES[j].rotulo||SLIDES[j].tipo}` : 'Fim';
-  document.getElementById('contador').textContent=`${i+1} / ${SLIDES.length}`;
-  document.getElementById('rotulo-agora').textContent=rot(i)+(estado.preto?' · TELA PRETA':'');
-  document.getElementById('rotulo-prox').textContent=rot(i+1);
+  const rotuloDe = j => (j==null||!SLIDES[j]) ? 'Fim' : `${posDe(j)+1}. ${SLIDES[j].rotulo||SLIDES[j].tipo}`;
+  const pos = posDe(i);
+  const iProx = pos < ordem.length-1 ? ordem[pos+1] : null;
+  document.getElementById('contador').textContent=`${pos+1} / ${ordem.length}`;
+  document.getElementById('rotulo-agora').textContent=rotuloDe(i)+(estado.preto?' · TELA PRETA':'');
+  document.getElementById('rotulo-prox').textContent=rotuloDe(iProx);
   montarPalco(document.getElementById('palco-agora'), i, {preto:estado.preto});
-  montarPalco(document.getElementById('palco-prox'), i+1);
+  montarPalco(document.getElementById('palco-prox'), iProx==null ? SLIDES.length : iProx);
   document.getElementById('notas').textContent=SLIDES[i].nota||'';
   document.getElementById('b-preto-txt').textContent=estado.preto?'Mostrar tela':'Tela preta';
-  document.getElementById('b-prox').disabled = i>=SLIDES.length-1;
-  document.getElementById('b-ant').disabled = i<=0;
+  document.getElementById('b-prox').disabled = pos>=ordem.length-1;
+  document.getElementById('b-ant').disabled = pos<=0;
   document.querySelectorAll('.mini').forEach(m=>m.classList.toggle('atual', +m.dataset.i===i));
   const rolar=()=>{ const atual=document.querySelector('.mini.atual'); if(atual){ const l=document.getElementById('lista'); l.scrollTo({left: atual.offsetLeft - l.clientWidth/2 + atual.clientWidth/2}); } }; rolar(); setTimeout(rolar, 150);
   atualizarStatus();
