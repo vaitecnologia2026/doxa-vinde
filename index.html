@@ -198,17 +198,26 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
 .mini .titulo-mini{position:absolute;left:0;right:0;bottom:0;z-index:2;font-size:12px;padding:6px 10px;background:linear-gradient(transparent,rgba(0,0,0,.75));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini .palco-wrap{pointer-events:none}
 .faixa .rotulo .acoes{display:flex;gap:8px;align-items:center}
-.mini-acao{background:var(--painel-2);border:1px solid var(--borda);color:var(--creme);border-radius:8px;padding:5px 12px;font-family:var(--serif-texto);font-size:14px;letter-spacing:.02em;cursor:pointer;text-transform:none}
+.mini-acao{background:var(--painel-2);border:1px solid var(--borda);color:var(--creme);border-radius:8px;padding:6px 14px;font-family:var(--serif-texto);font-size:15px;letter-spacing:.02em;cursor:pointer;text-transform:none}
 .mini-acao:hover{border-color:var(--creme-suave)}
-.mini-acao.ativo{background:var(--creme);border-color:var(--creme);color:var(--tinta);font-weight:600}
-.lista.reordenando .mini{cursor:default}
-.lista.reordenando .mini:hover{transform:none}
-.lista.reordenando .mini .palco-wrap{filter:brightness(.7)}
-.mini .mover{display:none;position:absolute;left:6px;right:6px;top:50%;transform:translateY(-50%);z-index:3;justify-content:space-between;pointer-events:none}
-.lista.reordenando .mini .mover{display:flex}
-.mini .mv{pointer-events:auto;width:40px;height:44px;border-radius:10px;border:1px solid var(--borda);background:rgba(0,0,0,.62);color:var(--creme);font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mini .mv:active{background:var(--creme);color:var(--tinta)}
-.mini .mv:disabled{opacity:.25;cursor:default}
+textarea.notas{display:block;width:100%;min-height:64px;resize:vertical;background:var(--painel-2);border:1px solid var(--borda);border-radius:10px;color:var(--creme);font-family:var(--serif-texto);font-size:17px;line-height:1.4;padding:12px 14px}
+textarea.notas::placeholder{color:var(--creme-suave)}
+textarea.notas:focus{outline:none;border-color:var(--creme-suave)}
+/* painel Reorganizar */
+.reorg-fundo{position:fixed;inset:0;z-index:60;background:rgba(8,5,4,.74);display:flex;align-items:flex-end;justify-content:center}
+.reorg{background:var(--painel);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;border-radius:16px 16px 0 0;border:1px solid var(--borda);box-shadow:0 -20px 60px rgba(0,0,0,.5)}
+.reorg header{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--borda)}
+.reorg header h3{margin:0;font-family:var(--serif-titulo);font-weight:600;font-size:22px;color:var(--creme);flex:1}
+.reorg .rows{overflow-y:auto;padding:6px 10px 10px}
+.reorg-row{display:flex;align-items:center;gap:12px;padding:10px 6px}
+.reorg-row+.reorg-row{border-top:1px solid var(--borda)}
+.reorg-row .rn{width:28px;text-align:center;font-family:var(--serif-titulo);font-size:16px;color:var(--creme-suave)}
+.reorg-row .rt{flex:1;color:var(--creme);font-family:var(--serif-texto);font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reorg-row .rmv{display:flex;gap:8px}
+.reorg-row .rmv button{width:48px;height:48px;border-radius:12px;border:1px solid var(--borda);background:var(--painel-2);color:var(--creme);font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.reorg-row .rmv button:active{background:var(--creme);color:var(--tinta)}
+.reorg-row .rmv button:disabled{opacity:.22}
+.reorg footer{padding:14px 18px;border-top:1px solid var(--borda)}
 .controle footer{border-top:1px solid var(--borda);background:var(--painel-2);padding:12px 22px 10px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding-bottom:max(10px,env(safe-area-inset-bottom))}
 .controle footer .btn{font-size:18px;padding:12px 20px}
 .controle footer .btn.grande{font-size:20px;padding:14px 30px}
@@ -422,6 +431,7 @@ function montarPalco(container, i, opts={}){
 const CHAVE = 'doxa.vinde.estado';
 const CHAVE_CODIGO = 'doxa.vinde.codigo';
 const CHAVE_ORDEM = 'doxa.vinde.ordem';
+const CHAVE_NOTAS = 'doxa.vinde.notas';
 const canal = ('BroadcastChannel' in window) ? new BroadcastChannel('doxa-vinde') : null;
 let estado = lerEstadoLocal();
 let codigo = '';
@@ -449,33 +459,58 @@ function moverTela(canonIdx, dir){
   const t = ordem[p]; ordem[p] = ordem[np]; ordem[np] = t;
   guardarOrdem();
   canal && canal.postMessage({ordem: ordem.slice()});
-  montarLista();
+  montarLista(); renderReorgRows();
 }
 function restaurarOrdem(){
   ordem = ordemPadrao(); guardarOrdem();
   canal && canal.postMessage({ordem: ordem.slice()});
-  montarLista();
+  montarLista(); renderReorgRows();
 }
 function montarLista(){
   const lista = document.getElementById('lista'); if(!lista) return;
-  lista.classList.toggle('reordenando', reordenando);
   lista.innerHTML = '';
   ordem.forEach((idx, pos)=>{
     const s = SLIDES[idx];
     const m = document.createElement('div'); m.className='mini'; m.dataset.i = idx;
-    m.innerHTML = `<div class="num">${pos+1}</div><div class="palco-wrap"></div>`
-      + `<div class="mover"><button type="button" class="mv" data-dir="-1" aria-label="Mover para trás">&#9664;</button><button type="button" class="mv" data-dir="1" aria-label="Mover para frente">&#9654;</button></div>`
-      + `<div class="titulo-mini">${esc(s.rotulo||s.tipo)}</div>`;
+    m.innerHTML = `<div class="num">${pos+1}</div><div class="palco-wrap"></div><div class="titulo-mini">${esc(s.rotulo||s.tipo)}</div>`;
     montarPalco(m.querySelector('.palco-wrap'), idx);
-    const bAnt = m.querySelector('[data-dir="-1"]'), bDep = m.querySelector('[data-dir="1"]');
-    bAnt.disabled = pos===0; bDep.disabled = pos===ordem.length-1;
-    bAnt.onclick = e=>{ e.stopPropagation(); moverTela(idx,-1); };
-    bDep.onclick = e=>{ e.stopPropagation(); moverTela(idx, 1); };
-    m.onclick = ()=>{ if(!reordenando) irPara(idx); };
+    m.onclick = ()=> irPara(idx);
     m.classList.toggle('atual', idx===estado.i);
     lista.appendChild(m);
   });
 }
+/* painel de reorganizar (lista vertical, botões grandes — bom no celular) */
+function renderReorgRows(){
+  const cont = document.getElementById('reorg-rows'); if(!cont) return;
+  cont.innerHTML = '';
+  ordem.forEach((idx, pos)=>{
+    const s = SLIDES[idx];
+    const row = document.createElement('div'); row.className='reorg-row';
+    row.innerHTML = `<div class="rn">${pos+1}</div><div class="rt">${esc(s.rotulo||s.tipo)}</div>`
+      + `<div class="rmv"><button type="button" data-d="-1" aria-label="Subir">&#9650;</button><button type="button" data-d="1" aria-label="Descer">&#9660;</button></div>`;
+    const up = row.querySelector('[data-d="-1"]'), dn = row.querySelector('[data-d="1"]');
+    up.disabled = pos===0; dn.disabled = pos===ordem.length-1;
+    up.onclick = ()=> moverTela(idx, -1);
+    dn.onclick = ()=> moverTela(idx, 1);
+    cont.appendChild(row);
+  });
+}
+function abrirReorganizar(){
+  if(document.getElementById('reorg-fundo')) return;
+  const d = document.createElement('div'); d.className='reorg-fundo'; d.id='reorg-fundo';
+  d.innerHTML = `<div class="reorg"><header><h3>Reorganizar telas</h3><button class="mini-acao" id="reorg-restaurar" type="button">Restaurar ordem</button></header><div class="rows" id="reorg-rows"></div><footer><button class="btn cheio grande" id="reorg-ok" type="button" style="width:100%">Concluir</button></footer></div>`;
+  d.addEventListener('click', e=>{ if(e.target===d) fecharReorganizar(); });
+  document.body.appendChild(d);
+  document.getElementById('reorg-ok').onclick = fecharReorganizar;
+  document.getElementById('reorg-restaurar').onclick = restaurarOrdem;
+  renderReorgRows();
+}
+function fecharReorganizar(){ const d = document.getElementById('reorg-fundo'); if(d) d.remove(); }
+/* observações por tela (editáveis no controle, salvas neste aparelho) */
+function lerNotas(){ try{ const o = JSON.parse(localStorage.getItem(CHAVE_NOTAS)||'{}'); return (o && typeof o==='object') ? o : {}; }catch(_){ return {}; } }
+let notasCustom = lerNotas();
+function guardarNotas(){ try{ localStorage.setItem(CHAVE_NOTAS, JSON.stringify(notasCustom)); }catch(_){} }
+function notaDe(i){ return (String(i) in notasCustom) ? notasCustom[i] : ((SLIDES[i] && SLIDES[i].nota) || ''); }
 let semNuvem = false;          // usuário escolheu operar só nesta máquina
 let seqNuvem = 0;              // último seq confirmado pela nuvem
 let nuvemOk = null;            // null = ainda não testou; true/false
@@ -570,7 +605,8 @@ if(canal){
     const m = e.data || {};
     if(m.ping){ if(modo()==='telao') canal.postMessage({pong:1}); return; }
     if(m.pong){ ultimoPong = Date.now(); atualizarStatus(); return; }
-    if(Array.isArray(m.ordem)){ aplicarOrdem(m.ordem); guardarOrdem(); if(modo()==='controle' && montado==='controle') montarLista(); return; }
+    if(Array.isArray(m.ordem)){ aplicarOrdem(m.ordem); guardarOrdem(); if(modo()==='controle' && montado==='controle'){ montarLista(); renderReorgRows(); } return; }
+    if(m.nota && Number.isInteger(m.nota.i)){ notasCustom[m.nota.i]=m.nota.texto; guardarNotas(); const ta=document.getElementById('notas'); if(ta && estado.i===m.nota.i && document.activeElement!==ta) ta.value=m.nota.texto; return; }
     if(!Number.isInteger(m.i)) return;
     ultimoLocalT = Date.now();
     if(m.confirmado && Number(m.seq) > seqNuvem) seqNuvem = Number(m.seq);
@@ -580,7 +616,8 @@ if(canal){
   window.addEventListener('storage', e=>{ if(e.key===CHAVE && e.newValue){ try{ const n=JSON.parse(e.newValue); ultimoLocalT = Date.now(); aplicar({i:n.i, preto:!!n.preto}); }catch(_){} } });
 }
 window.addEventListener('storage', e=>{ if(e.key===CHAVE_CODIGO){ codigo = e.newValue || ''; } });
-window.addEventListener('storage', e=>{ if(e.key===CHAVE_ORDEM){ ordem = lerOrdem(); if(modo()==='controle' && montado==='controle') montarLista(); } });
+window.addEventListener('storage', e=>{ if(e.key===CHAVE_ORDEM){ ordem = lerOrdem(); if(modo()==='controle' && montado==='controle'){ montarLista(); renderReorgRows(); } } });
+window.addEventListener('storage', e=>{ if(e.key===CHAVE_NOTAS){ notasCustom = lerNotas(); const ta=document.getElementById('notas'); if(ta && document.activeElement!==ta) ta.value=notaDe(estado.i); } });
 
 const proximo = ()=> publicar({i: idxNaPos(posDe(estado.i)+1), preto:false});
 const anterior = ()=> publicar({i: idxNaPos(posDe(estado.i)-1), preto:false});
@@ -713,11 +750,11 @@ function renderControle(){
           <div class="rotulo"><span>Próximo</span><span id="rotulo-prox"></span></div>
           <div class="palco-wrap" id="palco-prox"></div>
           <div class="rotulo"><span>Anotação</span></div>
-          <div class="notas" id="notas"></div>
+          <textarea class="notas" id="notas" placeholder="Escreva uma observação para esta tela..."></textarea>
         </div>
       </main>
       <div class="faixa">
-        <div class="rotulo"><span>Todas as telas</span><span class="acoes"><button class="mini-acao" id="b-restaurar" type="button" hidden>Restaurar ordem</button><button class="mini-acao" id="b-reordenar" type="button">Reorganizar</button></span></div>
+        <div class="rotulo"><span>Todas as telas</span><button class="mini-acao" id="b-reordenar" type="button">Reorganizar</button></div>
         <div class="lista" id="lista"></div>
       </div>
       <footer>
@@ -735,15 +772,8 @@ function renderControle(){
     document.getElementById('b-preto').onclick=alternarPreto;
     document.getElementById('b-inicio').onclick=()=>irPara(0);
     montarLista();
-    const bReord=document.getElementById('b-reordenar'), bRest=document.getElementById('b-restaurar');
-    bReord.onclick=()=>{
-      reordenando=!reordenando;
-      bReord.textContent=reordenando?'Concluir':'Reorganizar';
-      bReord.classList.toggle('ativo', reordenando);
-      bRest.hidden=!reordenando;
-      montarLista();
-    };
-    bRest.onclick=restaurarOrdem;
+    document.getElementById('b-reordenar').onclick=abrirReorganizar;
+    { const ta=document.getElementById('notas'); if(ta) ta.addEventListener('input', ()=>{ notasCustom[estado.i]=ta.value; guardarNotas(); canal && canal.postMessage({nota:{i:estado.i, texto:ta.value}}); }); }
     // deslizar na prévia: esquerda = próximo, direita = anterior
     const agora = document.getElementById('palco-agora'); let x0=null, y0=null;
     agora.addEventListener('touchstart', e=>{ const t=e.touches[0]; x0=t.clientX; y0=t.clientY; }, {passive:true});
@@ -764,7 +794,7 @@ function renderControle(){
   document.getElementById('rotulo-prox').textContent=rotuloDe(iProx);
   montarPalco(document.getElementById('palco-agora'), i, {preto:estado.preto});
   montarPalco(document.getElementById('palco-prox'), iProx==null ? SLIDES.length : iProx);
-  document.getElementById('notas').textContent=SLIDES[i].nota||'';
+  { const ta=document.getElementById('notas'); if(ta && document.activeElement!==ta) ta.value = notaDe(i); }
   document.getElementById('b-preto-txt').textContent=estado.preto?'Mostrar tela':'Tela preta';
   document.getElementById('b-prox').disabled = pos>=ordem.length-1;
   document.getElementById('b-ant').disabled = pos<=0;
