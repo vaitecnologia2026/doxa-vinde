@@ -81,7 +81,10 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
 .slide.m .foto.direita{background-position:right center}
 .slide.m .foto.escura{filter:brightness(.45) blur(6px);transform:scale(1.04)}
 .slide.m .veu{background:linear-gradient(90deg,rgba(5,6,8,.96) 0%,rgba(5,6,8,.82) 40%,rgba(5,6,8,.25) 100%)}
-.slide.m.centro .veu{background:linear-gradient(180deg,rgba(5,6,8,.75),rgba(5,6,8,.85))}
+.slide.m.centro .veu{background:linear-gradient(180deg,rgba(5,6,8,.55),rgba(5,6,8,.78))}
+.slide.m.split .lado .veu{background:linear-gradient(180deg,rgba(5,6,8,.55),rgba(5,6,8,.8))}
+.slide.m.split .lado>*{position:relative;z-index:1}
+.slide.m.split .lado .foto,.slide.m.split .lado .veu,.slide.m.split .lado .cruz{position:absolute;z-index:0}
 .slide.m b{color:var(--m-vermelho);font-weight:inherit}
 .slide.m em{color:var(--m-laranja);font-style:normal}
 .slide.m .t{font-family:var(--font-titulo);font-weight:400;text-transform:uppercase;line-height:.96;letter-spacing:.012em;font-size:190px;text-wrap:balance;max-width:1620px;text-shadow:0 12px 50px rgba(0,0,0,.55)}
@@ -233,111 +236,80 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
    campo "nota" = anotação que só aparece na tela de controle.
    ===================================================================== */
 const SLIDES = [
-  { tipo:'capa', rotulo:'Capa DOXA',
-    nota:'Capa da série no telão enquanto o povo se acomoda. Não fale nada sobre ela. Deixe a imagem trabalhar.' },
-
   { tipo:'titulo', rotulo:'Quando Deus volta para o centro',
     sobre:'Introdução', sub:'Quando Deus volta para o centro', assina:'Vinde Arena',
-    nota:'Abertura da série. Apresente o nome DOXA e o subtítulo. Uma frase só: hoje é sobre Deus voltar para o centro.' },
-
-  { tipo:'texto', rotulo:'Todo coração procura glória',
-    texto:'Todo coração procura alguma forma de glória. Procuramos sentido, aprovação, prazer, conquista, reconhecimento, futuro e pertencimento. Muitas vezes, sem perceber, passamos a viver guiados por falsos brilhos: coisas que prometem preencher a alma, mas deixam o coração ainda mais vazio.',
-    nota:'Texto da introdução, página 2 do material. Leia com calma. Pause em "falsos brilhos".' },
-
-  { tipo:'texto', rotulo:'O que é Doxa',
-    texto:'<b>Doxa</b> é uma palavra grega ligada à ideia de glória, honra, majestade e esplendor. Na Bíblia, essa glória não é apenas uma luz distante ou uma experiência emocional. É a manifestação da presença, da santidade, da beleza e do caráter de Deus. E essa glória foi revelada de maneira perfeita em Jesus Cristo.',
-    nota:'Defina a palavra. Glória não é luz nem emoção: é a presença e o caráter de Deus, revelados em Jesus.' },
-
-  { tipo:'frase', rotulo:'Um convite para voltar ao centro',
-    texto:'Esta série é um convite para uma geração voltar ao centro.',
-    nota:'Frase curta. Deixe no telão e olhe para as pessoas.' },
-
-  { tipo:'texto', longo:true, rotulo:'As nove mensagens',
-    texto:'Ao longo de nove mensagens, caminharemos da consciência do pecado à graça que restaura; dos ídolos escondidos no coração à presença que vale mais do que qualquer conquista; da busca por aprovação humana à liberdade de viver diante de Deus; da revelação de Cristo à resposta ao Evangelho; da transformação interior à vida secreta com o Pai; e, por fim, ao envio de uma geração chamada para ser luz no mundo.',
-    nota:'Mapa da série. Não precisa ler tudo: aponte o caminho, do pecado ao envio.' },
-
-  { tipo:'texto', rotulo:'Para quem é Doxa',
-    texto:'<b>Doxa</b> é para quem está chegando agora e também para quem já está há muito tempo na caminhada. É para quem se sente distante, para quem se acostumou com a fé, para quem serve mas precisa voltar ao secreto, para quem deseja recomeçar e para quem carrega dentro de si uma fome por algo maior.',
-    nota:'Inclua todo mundo da sala: quem chegou agora e quem serve há anos.' },
-
-  { tipo:'texto', rotulo:'A oração desta série',
-    texto:'A oração desta série é simples e profunda: que Deus volte a ocupar o centro. Que os falsos brilhos percam força. Que Cristo seja visto, amado, anunciado e seguido. Que a nossa geração não viva apenas de momentos, eventos ou aparência espiritual, mas seja marcada pela presença de Deus.',
-    nota:'Pode virar oração falada aqui mesmo.' },
-
-  { tipo:'frase', rotulo:'Reste Apenas Cristo',
-    texto:'DOXA é uma jornada para que, no fim, reste <b>Apenas Cristo</b>.',
-    nota:'Fechamento da introdução. Silêncio depois da frase. Próximas telas: mensagem 2, "O que manda em mim?".' },
+    nota:'Abertura: nome DOXA e o subtítulo. Em seguida, a mensagem.' },
 
   /* ===== MENSAGEM 2 — "O QUE MANDA EM MIM?" (público 10 a 17 anos) ===== */
-  { tipo:'m', layout:'abertura', cena:'noite', rotulo:'M1 · Quem manda em quem?',
+  { tipo:'m', layout:'abertura', cena:'noite', rotulo:'M1 · Quem manda em quem?', img:'img/m01.jpg', imgPos:'direita',
     titulo:'QUEM <b>MANDA</b>\nEM QUEM?',
     nota:'Pergunta de abertura.' },
 
-  { tipo:'m', layout:'titulo', cena:'noite', cenaMod:'escura', rotulo:'M2 · O que manda em mim?',
+  { tipo:'m', layout:'titulo', cena:'noite', cenaMod:'escura', rotulo:'M2 · O que manda em mim?', img:'img/m01.jpg', imgEscura:true,
     titulo:'O QUE MANDA\nEM MIM?', sub:'Aquilo que governa o coração se transforma em um altar.',
     nota:'' },
 
-  { tipo:'m', layout:'versiculo', cena:'carmelo', rotulo:'M3 · A pergunta de Elias',
+  { tipo:'m', layout:'versiculo', cena:'carmelo', rotulo:'M3 · A pergunta de Elias', img:'img/m03.jpg',
     texto:'“Até quando vocês vão ficar indecisos?\nSe o Senhor é Deus, sigam-no.”', ref:'1 Reis 18:21',
     nota:'Pilar 1.' },
 
-  { tipo:'m', layout:'titulo', cena:'seca', rotulo:'M4 · Israel estava dividido',
+  { tipo:'m', layout:'titulo', cena:'seca', rotulo:'M4 · Israel estava dividido', img:'img/m04.jpg',
     titulo:'ISRAEL ESTAVA\n<b>DIVIDIDO</b>', sub:'Conhecia o Senhor, mas também seguia Baal.',
     nota:'Pilar 1.' },
 
-  { tipo:'m', layout:'titulo', cena:'dividido', tam:'media', rotulo:'M5 · Pilar 1',
+  { tipo:'m', layout:'titulo', cena:'dividido', tam:'media', rotulo:'M5 · Pilar 1', img:'img/m05.jpg',
     titulo:'UM CORAÇÃO DIVIDIDO\nPERDE O <b>CAMINHO</b>', sub:'Não basta acreditar em Deus.\nQuem governa suas escolhas?',
     nota:'Pilar 1.' },
 
-  { tipo:'m', layout:'perguntas', cena:'noite', rotulo:'M6 · O que controla você?',
+  { tipo:'m', layout:'perguntas', cena:'noite', rotulo:'M6 · O que controla você?', img:'img/m06.jpg',
     titulo:'O QUE <b>CONTROLA</b> VOCÊ?',
     lista:['Seu humor?','Seus pensamentos?','Suas escolhas?','Seu valor?','Seu medo de perder?'],
     nota:'Pilar 1.' },
 
-  { tipo:'m', layout:'titulo', cena:'carmelo', tam:'media', rotulo:'M7 · O desafio',
+  { tipo:'m', layout:'titulo', cena:'carmelo', tam:'media', rotulo:'M7 · O desafio', img:'img/m07.jpg',
     titulo:'O DEUS QUE RESPONDER COM <em>FOGO</em>\nESSE É DEUS', ref:'1 Reis 18:24',
     nota:'Pilar 2.' },
 
-  { tipo:'m', layout:'versiculo', cena:'cinzas', rotulo:'M8 · Baal não respondeu',
+  { tipo:'m', layout:'versiculo', cena:'cinzas', rotulo:'M8 · Baal não respondeu', img:'img/m08.jpg',
     texto:'“Não houve resposta alguma;\nninguém respondeu,\nninguém deu atenção.”', ref:'1 Reis 18:29',
     destaque:'NÃO HOUVE RESPOSTA',
     nota:'Pilar 2.' },
 
-  { tipo:'m', layout:'titulo', cena:'correntes', tam:'media', rotulo:'M9 · Pilar 2',
+  { tipo:'m', layout:'titulo', cena:'correntes', tam:'media', rotulo:'M9 · Pilar 2', img:'img/m09.jpg',
     titulo:'OS ÍDOLOS PROMETEM VIDA,\nMAS PRODUZEM <b>PRISÃO</b>',
     sub:'Primeiro dizem:\n“Você será feliz comigo.”\n\nDepois dizem:\n“Você não consegue viver sem mim.”',
     nota:'Pilar 2.' },
 
-  { tipo:'m', layout:'split', cruz:true, rotulo:'M10 · Ídolos e Jesus',
+  { tipo:'m', layout:'split', cruz:true, rotulo:'M10 · Ídolos e Jesus', imgEsq:'img/m10a.jpg', imgDir:'img/m10b.jpg',
     esquerda:{ titulo:'OS ÍDOLOS', itens:['“Prove que você tem valor.”','“Faça mais para ser aceito.”','“Você não consegue viver sem mim.”'] },
     direita:{ titulo:'JESUS', itens:['“Eu entreguei minha vida por você.”','“Venha a mim.”','“Eu vou libertar você.”'] },
     nota:'Pilar 2.' },
 
-  { tipo:'m', layout:'versiculo', cena:'luz', rotulo:'M11 · Pilar 3',
+  { tipo:'m', layout:'versiculo', cena:'luz', rotulo:'M11 · Pilar 3', img:'img/m11.jpg',
     titulo:'O ALTAR PRECISA VOLTAR\nA PERTENCER AO <em>SENHOR</em>',
     texto:'“Elias reparou o altar do Senhor,\nque estava em ruínas.”', ref:'1 Reis 18:30',
     nota:'Pilar 3.' },
 
-  { tipo:'m', layout:'versiculo', cena:'luz', longo:true, rotulo:'M12 · O coração voltando',
+  { tipo:'m', layout:'versiculo', cena:'luz', longo:true, rotulo:'M12 · O coração voltando', img:'img/m12.jpg',
     texto:'“Responde-me, Senhor, para que este povo saiba que tu és Deus e que fazes o coração deles voltar para ti.”', ref:'1 Reis 18:37',
     destaque:'O MAIOR MILAGRE FOI O CORAÇÃO VOLTAR', destaqueCor:'laranja',
     nota:'Pilar 3.' },
 
-  { tipo:'m', layout:'titulo', cena:'fogo', rotulo:'M13 · O fogo caiu',
+  { tipo:'m', layout:'titulo', cena:'fogo', rotulo:'M13 · O fogo caiu', img:'img/m13.jpg',
     titulo:'O SENHOR É DEUS!\nO SENHOR É DEUS!', ref:'1 Reis 18:39',
     nota:'Pilar 3.' },
 
-  { tipo:'m', layout:'titulo', cena:'luz', cruz:true, tam:'media', rotulo:'M14 · Jesus e a cruz',
+  { tipo:'m', layout:'titulo', cena:'luz', cruz:true, tam:'media', rotulo:'M14 · Jesus e a cruz', img:'img/m14.jpg',
     titulo:'JESUS ENTREGOU TUDO\nPARA TRAZER NOSSO <em>CORAÇÃO</em> DE VOLTA',
     sub:'No Carmelo, o fogo caiu sobre o sacrifício.\nNa cruz, Jesus ocupou o nosso lugar.',
     nota:'Apresentar o Evangelho.' },
 
-  { tipo:'m', layout:'perguntas', cena:'silencio', rotulo:'M15 · Momento de decisão',
+  { tipo:'m', layout:'perguntas', cena:'silencio', rotulo:'M15 · Momento de decisão', img:'img/m15.jpg',
     titulo:'O QUE <b>MANDA</b> EM VOCÊ?',
     lista:['O que controla seu humor?','O que você não consegue abandonar?','O que ocupa o lugar de Deus?','Que altar precisa ser restaurado?'],
     nota:'Apelo e oração.' },
 
-  { tipo:'m', layout:'declaracao', cena:'luz', cenaMod:'intensa', rotulo:'M16 · Declaração final',
+  { tipo:'m', layout:'declaracao', cena:'luz', cenaMod:'intensa', rotulo:'M16 · Declaração final', img:'img/m16.jpg',
     linhas:'NÃO É O MEDO.\nNÃO É A OPINIÃO DAS PESSOAS.\nNÃO É O PECADO.',
     grande:'<em>JESUS É O SENHOR</em>\nDA MINHA VIDA!',
     fim:'O altar pertence ao Senhor.\nO centro pertence a Jesus.\nO meu coração também.',
@@ -398,7 +370,7 @@ function htmlMensagem(s){
     case 'perguntas':
       return `<div class="slide m">${fundo}<div class="t media">${linhas(s.titulo)}</div><div class="perguntas">${(s.lista||[]).map(q=>`<div>${esc(q)}</div>`).join('')}</div></div>`;
     case 'split':
-      return `<div class="slide m split"><div class="lado idolos"><div class="t">${esc(s.esquerda.titulo)}</div>${s.esquerda.itens.map(p=>`<p>${esc(p)}</p>`).join('')}</div><div class="lado jesus">${s.cruz?CRUZ:''}<div class="t">${esc(s.direita.titulo)}</div>${s.direita.itens.map(p=>`<p>${esc(p)}</p>`).join('')}</div></div>`;
+      return `<div class="slide m split"><div class="lado idolos">${s.imgEsq?`<div class="foto" style="background-image:url('${s.imgEsq}')"></div><div class="veu"></div>`:''}<div class="t">${esc(s.esquerda.titulo)}</div>${s.esquerda.itens.map(p=>`<p>${esc(p)}</p>`).join('')}</div><div class="lado jesus">${s.imgDir?`<div class="foto" style="background-image:url('${s.imgDir}')"></div><div class="veu"></div>`:''}${s.cruz?CRUZ:''}<div class="t">${esc(s.direita.titulo)}</div>${s.direita.itens.map(p=>`<p>${esc(p)}</p>`).join('')}</div></div>`;
     case 'declaracao':
       return `<div class="slide m centro">${fundo}<div class="decl">${linhas(s.linhas)}</div><div class="decl grande">${linhas(s.grande)}</div>${s.fim?`<div class="fim">${linhas(s.fim)}</div>`:''}</div>`;
     default:
@@ -721,7 +693,7 @@ function renderControle(){
   document.getElementById('b-prox').disabled = i>=SLIDES.length-1;
   document.getElementById('b-ant').disabled = i<=0;
   document.querySelectorAll('.mini').forEach(m=>m.classList.toggle('atual', +m.dataset.i===i));
-  const atual=document.querySelector('.mini.atual'); if(atual){ const l=document.getElementById('lista'); l.scrollTo({left: atual.offsetLeft - l.clientWidth/2 + atual.clientWidth/2}); }
+  const rolar=()=>{ const atual=document.querySelector('.mini.atual'); if(atual){ const l=document.getElementById('lista'); l.scrollTo({left: atual.offsetLeft - l.clientWidth/2 + atual.clientWidth/2}); } }; rolar(); setTimeout(rolar, 150);
   atualizarStatus();
 }
 
