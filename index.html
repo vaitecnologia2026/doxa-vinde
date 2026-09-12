@@ -233,19 +233,23 @@ textarea.notas:focus{outline:none;border-color:var(--creme-suave)}
   .controle header .marca span{display:none}
   .controle header .contador{font-size:22px}
   .controle main{grid-template-columns:1fr;padding:12px 14px 6px;gap:12px}
-  .bloco .palco-wrap.agora{max-width:100%}
+  .controle main{padding:10px 14px 6px;gap:8px}
+  .bloco .palco-wrap.agora{max-width:68%}
   #bloco-prox .palco-wrap{display:none}
   #bloco-prox .rotulo:first-child{display:none}
-  .notas{font-size:17px;min-height:0}
-  .faixa{padding:8px 14px 8px}
+  #bloco-prox .rotulo{font-size:13px;letter-spacing:.24em}
+  #nota-status{font-size:13px}
+  .notas,textarea.notas{font-size:22px;line-height:1.5;min-height:30vh;color:#f8efd3;background:linear-gradient(180deg,rgba(240,225,163,.08),rgba(240,225,163,.03));border:1px solid var(--borda);border-left:5px solid var(--creme);border-radius:12px;padding:16px 18px}
+  .faixa{padding:6px 14px 6px}
   .faixa .rotulo{margin-bottom:6px}
   .faixa .rotulo>span{display:none}
-  .mini{flex-basis:132px}
+  .mini{flex-basis:104px}
   .mini .titulo-mini{display:none}
-  .controle footer{padding:10px 14px;gap:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
-  .controle footer .btn{flex:1 1 auto;font-size:18px;padding:16px 14px}
-  .controle footer .btn.grande{flex:2 1 auto;font-size:22px;padding:20px 14px}
-  .controle footer .btn.secundario{flex:1 1 40%;font-size:16px;padding:12px}
+  .controle footer{padding:8px 14px;gap:8px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .controle footer .btn{flex:1 1 auto;font-size:15px;padding:10px 10px;gap:6px;letter-spacing:.05em}
+  .controle footer .btn svg{width:18px;height:18px}
+  .controle footer .btn.grande{flex:2 1 auto;font-size:17px;padding:12px 10px}
+  .controle footer .btn.secundario{flex:1 1 40%;font-size:14px;padding:9px 8px}
   .controle footer .espaco,.controle footer .atalhos,.controle footer .so-desktop{display:none}
 }
 </style>
@@ -267,77 +271,77 @@ const SLIDES = [
   /* ===== MENSAGEM 2 — "O QUE MANDA EM MIM?" (público 10 a 17 anos) ===== */
   { tipo:'m', layout:'abertura', cena:'noite', rotulo:'M1 · Quem manda em quem?', img:'img/celular.jpg', imgPos:'direita',
     titulo:'QUEM <b>MANDA</b>\nEM QUEM?',
-    nota:'Abra na experiencia, sem \'boa noite igreja\' longo: uma curtida muda o humor, uma mensagem sem resposta bagunca o dia. \'Todos gostamos de pensar que somos livres.\' Pausa. \'Mas muita coisa dentro de nos nao parece tao livre.\'' },
+    nota:'Abra na experiência, sem \'boa noite igreja\' longo: uma curtida muda o humor, uma mensagem sem resposta bagunça o dia. \'Todos gostamos de pensar que somos livres.\' Pausa. \'Mas muita coisa dentro de nós não parece tão livre.\'' },
 
   { tipo:'m', layout:'titulo', cena:'noite', cenaMod:'escura', rotulo:'M2 · O que manda em mim?',
     titulo:'O QUE MANDA\nEM MIM?', sub:'Aquilo que governa o coração se transforma em um altar.',
-    nota:'Um coracao com um so centro descansa; nao vive cansado servindo dois senhores. Deus nao vem arrancar alegria, vem libertar de senhores que prometem vida e entregam escravidao.' },
+    nota:'Um coração com um só centro descansa; não vive cansado servindo dois senhores. Deus não vem arrancar alegria, vem libertar de senhores que prometem vida e entregam escravidão.' },
 
   { tipo:'m', layout:'versiculo', cena:'carmelo', rotulo:'M3 · A pergunta de Elias',
     texto:'“Até quando vocês vão ficar indecisos?\nSe o Senhor é Deus, sigam-no.”', ref:'1 Reis 18:21',
-    nota:'Israel nao rejeitou Deus, dividiu o centro: queria o nome de Deus e as garantias de Baal. O povo calou porque responder exigia decisao.' },
+    nota:'Israel não rejeitou Deus, dividiu o centro: queria o nome de Deus e as garantias de Baal. O povo calou porque responder exigia decisão.' },
 
   { tipo:'m', layout:'titulo', cena:'seca', rotulo:'M4 · Israel estava dividido',
     titulo:'ISRAEL ESTAVA\n<b>DIVIDIDO</b>', sub:'Conhecia o Senhor, mas também seguia Baal.',
-    nota:'Hoje: Deus recebe uma parte da agenda, da atencao, do afeto; o resto vai pra aprovacao, prazer, dinheiro, imagem, controle.' },
+    nota:'Hoje: Deus recebe uma parte da agenda, da atenção, do afeto; o resto vai pra aprovação, prazer, dinheiro, imagem, controle.' },
 
   { tipo:'m', layout:'titulo', cena:'dividido', tam:'media', rotulo:'M5 · Pilar 1',
     titulo:'UM CORAÇÃO DIVIDIDO\nPERDE O <b>CAMINHO</b>', sub:'Não basta acreditar em Deus.\nQuem governa suas escolhas?',
-    nota:'Nao basta acreditar em Deus. A pergunta e: quem governa suas escolhas? Coracao dividido perde o caminho.' },
+    nota:'Não basta acreditar em Deus. A pergunta é: quem governa suas escolhas? Coração dividido perde o caminho.' },
 
   { tipo:'m', layout:'perguntas', cena:'noite', rotulo:'M6 · O que controla você?',
     titulo:'O QUE <b>CONTROLA</b> VOCÊ?',
     lista:['Seu humor?','Seus pensamentos?','Suas escolhas?','Seu valor?','Seu medo de perder?'],
-    nota:'Deixe a lista no ar em silencio ~10s. Dica: olhe pra onde vai o medo — o que voce tem pavor de perder e o que esta no centro.' },
+    nota:'Deixe a lista no ar em silêncio ~10s. Dica: olhe pra onde vai o medo — o que você tem pavor de perder é o que está no centro.' },
 
   { tipo:'m', layout:'titulo', cena:'carmelo', tam:'media', rotulo:'M7 · O desafio',
     titulo:'O DEUS QUE RESPONDER COM <em>FOGO</em>\nESSE É DEUS', ref:'1 Reis 18:24',
-    nota:'O desafio no Carmelo: o Deus verdadeiro responde. O idolo exige muito e entrega pouco.' },
+    nota:'O desafio no Carmelo: o Deus verdadeiro responde. O ídolo exige muito e entrega pouco.' },
 
   { tipo:'m', layout:'versiculo', cena:'cinzas', rotulo:'M8 · Baal não respondeu',
     texto:'“Não houve resposta alguma;\nninguém respondeu,\nninguém deu atenção.”', ref:'1 Reis 18:29',
     destaque:'NÃO HOUVE RESPOSTA',
-    nota:'Baal: gritaram, dancaram, se cortaram — \'nao houve resposta alguma\'. Aprovacao promete identidade e nunca basta; prazer promete alivio e deixa culpa.' },
+    nota:'Baal: gritaram, dançaram, se cortaram — \'não houve resposta alguma\'. Aprovação promete identidade e nunca basta; prazer promete alívio e deixa culpa.' },
 
   { tipo:'m', layout:'titulo', cena:'correntes', tam:'media', rotulo:'M9 · Pilar 2',
     titulo:'OS ÍDOLOS PROMETEM VIDA,\nMAS PRODUZEM <b>PRISÃO</b>',
     sub:'Primeiro dizem:\n“Você será feliz comigo.”\n\nDepois dizem:\n“Você não consegue viver sem mim.”',
-    nota:'O idolo comeca dizendo \'eu vou te dar vida\' e termina \'voce nao consegue viver sem mim\'.' },
+    nota:'O ídolo começa dizendo \'eu vou te dar vida\' e termina \'você não consegue viver sem mim\'.' },
 
   { tipo:'m', layout:'split', cruz:true, rotulo:'M10 · Ídolos e Jesus',
     esquerda:{ titulo:'OS ÍDOLOS', itens:['“Prove que você tem valor.”','“Faça mais para ser aceito.”','“Você não consegue viver sem mim.”'] },
     direita:{ titulo:'JESUS', itens:['“Eu entreguei minha vida por você.”','“Venha a mim.”','“Eu vou libertar você.”'] },
-    nota:'MOMENTO ESTRELA — uma linha por vez, ritmo lento. Feche: \'O idolo usa sua fome pra te prender; Jesus encontra sua fome pra te salvar.\' Silencio de 5s depois.' },
+    nota:'MOMENTO ESTRELA — uma linha por vez, ritmo lento. Feche: \'O ídolo usa sua fome pra te prender; Jesus encontra sua fome pra te salvar.\' Silêncio de 5s depois.' },
 
   { tipo:'m', layout:'versiculo', cena:'luz', rotulo:'M11 · Pilar 3',
     titulo:'O ALTAR PRECISA VOLTAR\nA PERTENCER AO <em>SENHOR</em>',
     texto:'“Elias reparou o altar do Senhor,\nque estava em ruínas.”', ref:'1 Reis 18:30',
-    nota:'Deus ainda esta no vocabulario, na memoria, na rotina — mas o altar esta quebrado. Fe presente, sem centralidade.' },
+    nota:'Deus ainda está no vocabulário, na memória, na rotina — mas o altar está quebrado. Fé presente, sem centralidade.' },
 
   { tipo:'m', layout:'versiculo', cena:'luz', longo:true, rotulo:'M12 · O coração voltando',
     texto:'“Responde-me, Senhor, para que este povo saiba que tu és Deus e que fazes o coração deles voltar para ti.”', ref:'1 Reis 18:37',
     destaque:'O MAIOR MILAGRE FOI O CORAÇÃO VOLTAR', destaqueCor:'laranja',
-    nota:'O milagre maior nao foi o fogo, foi o coracao do povo voltando. Arrependimento e deixar Deus reorganizar o centro.' },
+    nota:'O milagre maior não foi o fogo, foi o coração do povo voltando. Arrependimento é deixar Deus reorganizar o centro.' },
 
   { tipo:'m', layout:'titulo', cena:'fogo', rotulo:'M13 · O fogo caiu',
     titulo:'O SENHOR É DEUS!\nO SENHOR É DEUS!', ref:'1 Reis 18:39',
-    nota:'No Carmelo o fogo caiu sobre o sacrificio; na cruz o juizo caiu sobre Cristo. Ele tomou o nosso lugar.' },
+    nota:'No Carmelo o fogo caiu sobre o sacrifício; na cruz o juízo caiu sobre Cristo. Ele tomou o nosso lugar.' },
 
   { tipo:'m', layout:'titulo', cena:'luz', cruz:true, tam:'media', rotulo:'M14 · Jesus e a cruz',
     titulo:'JESUS ENTREGOU TUDO\nPARA TRAZER NOSSO <em>CORAÇÃO</em> DE VOLTA',
     sub:'No Carmelo, o fogo caiu sobre o sacrifício.\nNa cruz, Jesus ocupou o nosso lugar.',
-    nota:'Apresente o Evangelho com clareza: Jesus ocupou o nosso lugar pra trazer o coracao de volta.' },
+    nota:'Apresente o Evangelho com clareza: Jesus ocupou o nosso lugar pra trazer o coração de volta.' },
 
   { tipo:'m', layout:'perguntas', cena:'silencio', rotulo:'M15 · Momento de decisão',
     titulo:'O QUE <b>MANDA</b> EM VOCÊ?',
     lista:['O que controla seu humor?','O que você não consegue abandonar?','O que ocupa o lugar de Deus?','Que altar precisa ser restaurado?'],
-    nota:'Apelo: quem reconhece que algo tem mandado mais que Deus, levanta a mao ou vem a frente. Nomeie o idolo visivel e o discreto (agradar todos, medo, controle, comparacao).' },
+    nota:'Apelo: quem reconhece que algo tem mandado mais que Deus, levanta a mão ou vem à frente. Nomeie o ídolo visível e o discreto (agradar todos, medo, controle, comparação).' },
 
   { tipo:'m', layout:'declaracao', cena:'luz', cenaMod:'intensa', rotulo:'M16 · Declaração final',
     linhas:'NÃO É O MEDO.\nNÃO É A OPINIÃO DAS PESSOAS.\nNÃO É O PECADO.',
     grande:'<em>JESUS É O SENHOR</em>\nDA MINHA VIDA!',
     fim:'O altar pertence ao Senhor.\nO centro pertence a Jesus.\nO meu coração também.',
-    nota:'Oracao guiada + declaracao coletiva. Fecho: \'Voce achava que era livre; agora voce pode ser.\' \'O altar sempre pertenceu ao Senhor.\'' },
+    nota:'Oração guiada + declaração coletiva. Fecho: \'Você achava que era livre; agora você pode ser.\' \'O altar sempre pertenceu ao Senhor.\'' },
 ];
 
 /* ---------- nuvem (Neon, usuário restrito: só lê o estado e grava com código) ---------- */
