@@ -202,6 +202,8 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
 .mini-acao:hover{border-color:var(--creme-suave)}
 textarea.notas{display:block;width:100%;min-height:64px;resize:vertical;background:var(--painel-2);border:1px solid var(--borda);border-radius:10px;color:var(--creme);font-family:var(--serif-texto);font-size:17px;line-height:1.4;padding:12px 14px}
 textarea.notas::placeholder{color:var(--creme-suave)}
+.nota-status{color:var(--ok);font-size:12px;letter-spacing:.08em;opacity:0;transition:opacity .2s}
+.nota-status.on{opacity:1}
 textarea.notas:focus{outline:none;border-color:var(--creme-suave)}
 /* painel Reorganizar */
 .reorg-fundo{position:fixed;inset:0;z-index:60;background:rgba(8,5,4,.74);display:flex;align-items:flex-end;justify-content:center}
@@ -606,7 +608,7 @@ if(canal){
     if(m.ping){ if(modo()==='telao') canal.postMessage({pong:1}); return; }
     if(m.pong){ ultimoPong = Date.now(); atualizarStatus(); return; }
     if(Array.isArray(m.ordem)){ aplicarOrdem(m.ordem); guardarOrdem(); if(modo()==='controle' && montado==='controle'){ montarLista(); renderReorgRows(); } return; }
-    if(m.nota && Number.isInteger(m.nota.i)){ notasCustom[m.nota.i]=m.nota.texto; guardarNotas(); const ta=document.getElementById('notas'); if(ta && estado.i===m.nota.i && document.activeElement!==ta) ta.value=m.nota.texto; return; }
+    if(m.nota && Number.isInteger(m.nota.i)){ notasCustom[m.nota.i]=m.nota.texto; guardarNotas(); const ta=document.getElementById('notas'); if(ta && ta.dataset.slide===String(m.nota.i) && document.activeElement!==ta) ta.value=m.nota.texto; return; }
     if(!Number.isInteger(m.i)) return;
     ultimoLocalT = Date.now();
     if(m.confirmado && Number(m.seq) > seqNuvem) seqNuvem = Number(m.seq);
@@ -617,7 +619,7 @@ if(canal){
 }
 window.addEventListener('storage', e=>{ if(e.key===CHAVE_CODIGO){ codigo = e.newValue || ''; } });
 window.addEventListener('storage', e=>{ if(e.key===CHAVE_ORDEM){ ordem = lerOrdem(); if(modo()==='controle' && montado==='controle'){ montarLista(); renderReorgRows(); } } });
-window.addEventListener('storage', e=>{ if(e.key===CHAVE_NOTAS){ notasCustom = lerNotas(); const ta=document.getElementById('notas'); if(ta && document.activeElement!==ta) ta.value=notaDe(estado.i); } });
+window.addEventListener('storage', e=>{ if(e.key===CHAVE_NOTAS){ notasCustom = lerNotas(); const ta=document.getElementById('notas'); if(ta && document.activeElement!==ta) ta.value=notaDe(+(ta.dataset.slide||estado.i)); } });
 
 const proximo = ()=> publicar({i: idxNaPos(posDe(estado.i)+1), preto:false});
 const anterior = ()=> publicar({i: idxNaPos(posDe(estado.i)-1), preto:false});
@@ -749,7 +751,7 @@ function renderControle(){
         <div class="bloco" id="bloco-prox">
           <div class="rotulo"><span>Próximo</span><span id="rotulo-prox"></span></div>
           <div class="palco-wrap" id="palco-prox"></div>
-          <div class="rotulo"><span>Anotação</span></div>
+          <div class="rotulo"><span>Anotação</span><span id="nota-status" class="nota-status"></span></div>
           <textarea class="notas" id="notas" placeholder="Escreva uma observação para esta tela..."></textarea>
         </div>
       </main>
@@ -773,7 +775,7 @@ function renderControle(){
     document.getElementById('b-inicio').onclick=()=>irPara(0);
     montarLista();
     document.getElementById('b-reordenar').onclick=abrirReorganizar;
-    { const ta=document.getElementById('notas'); if(ta) ta.addEventListener('input', ()=>{ notasCustom[estado.i]=ta.value; guardarNotas(); canal && canal.postMessage({nota:{i:estado.i, texto:ta.value}}); }); }
+    { const ta=document.getElementById('notas'); if(ta) ta.addEventListener('input', ()=>{ const si=ta.dataset.slide; if(si===undefined||si==='') return; notasCustom[si]=ta.value; guardarNotas(); canal && canal.postMessage({nota:{i:+si, texto:ta.value}}); const st=document.getElementById('nota-status'); if(st){ st.textContent='salvo'; st.classList.add('on'); clearTimeout(st._t); st._t=setTimeout(()=>st.classList.remove('on'),1400); } }); }
     // deslizar na prévia: esquerda = próximo, direita = anterior
     const agora = document.getElementById('palco-agora'); let x0=null, y0=null;
     agora.addEventListener('touchstart', e=>{ const t=e.touches[0]; x0=t.clientX; y0=t.clientY; }, {passive:true});
@@ -794,7 +796,7 @@ function renderControle(){
   document.getElementById('rotulo-prox').textContent=rotuloDe(iProx);
   montarPalco(document.getElementById('palco-agora'), i, {preto:estado.preto});
   montarPalco(document.getElementById('palco-prox'), iProx==null ? SLIDES.length : iProx);
-  { const ta=document.getElementById('notas'); if(ta && document.activeElement!==ta) ta.value = notaDe(i); }
+  { const ta=document.getElementById('notas'); if(ta){ const cur=String(i); if(ta.dataset.slide!==cur){ ta.dataset.slide=cur; ta.value=notaDe(i); } } }
   document.getElementById('b-preto-txt').textContent=estado.preto?'Mostrar tela':'Tela preta';
   document.getElementById('b-prox').disabled = pos>=ordem.length-1;
   document.getElementById('b-ant').disabled = pos<=0;
