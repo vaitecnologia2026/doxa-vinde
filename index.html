@@ -219,7 +219,11 @@ textarea.notas:focus{outline:none;border-color:var(--creme-suave)}
 @keyframes flama{0%{transform:translateY(9%) scaleY(.8) scaleX(1.04) skewX(-3deg);opacity:.7}45%{transform:translateY(-7%) scaleY(1.2) scaleX(.88) skewX(4deg);opacity:1}100%{transform:translateY(3%) scaleY(.95) scaleX(1.07) skewX(-1deg);opacity:.9}}
 .fogo-fx .brasa{position:absolute;bottom:5%;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,#ffe6a0,#ff8a1f 55%,rgba(255,80,20,0) 72%);animation:sobe linear infinite}
 @keyframes sobe{0%{transform:translate(0,0) scale(1);opacity:0}12%{opacity:1}100%{transform:translate(var(--dx,0),-88vh) scale(.35);opacity:0}}
-.fogo-fx .t{position:relative;z-index:3;color:#fff;text-shadow:0 0 26px rgba(255,150,40,.95),0 0 70px rgba(255,90,20,.6)}
+.fogo-fx .fogo-txt{position:relative;z-index:3;max-width:1560px;padding:34px 60px;background:radial-gradient(120% 130% at 50% 44%,rgba(6,4,3,.76),rgba(6,4,3,.34) 58%,transparent 82%)}
+.fogo-fx .fogo-txt>*{position:relative;z-index:3}
+.fogo-fx .t{color:#fff;text-shadow:0 0 26px rgba(255,150,40,.95),0 0 70px rgba(255,90,20,.6);font-size:104px;margin-bottom:28px}
+.fogo-fx .vers{font-weight:700;font-size:52px;line-height:1.32;max-width:1440px;margin:0 auto;text-shadow:0 4px 26px rgba(0,0,0,.7)}
+.fogo-fx .ref{margin-top:26px}
 @media (prefers-reduced-motion:reduce){.fogo-fx .chama,.fogo-fx .brasa,.fogo-fx .base-fogo{animation:none}}
 /* painel Reorganizar */
 .reorg-fundo{position:fixed;inset:0;z-index:60;background:rgba(8,5,4,.74);display:flex;align-items:flex-end;justify-content:center}
@@ -345,9 +349,10 @@ const SLIDES = [
     titulo:'O SENHOR É DEUS!\nO SENHOR É DEUS!', ref:'1 Reis 18:39',
     nota:'No Carmelo o fogo caiu sobre o sacrifício; na cruz o juízo caiu sobre Cristo. Ele tomou o nosso lugar.' },
 
-  { tipo:'m', layout:'fogo', rotulo:'M13b · Fogo',
-    titulo:'FOGO! FOGO!',
-    nota:'Efeito de fogo — o fogo do Senhor cai (1 Reis 18:38). Deixe o efeito no ar, suba a intensidade da voz e siga para a cruz.' },
+  { tipo:'m', layout:'fogo', rotulo:'M13b · O fogo consumiu tudo',
+    titulo:'O FOGO CONSUMIU TUDO',
+    texto:'"Então o fogo do Senhor caiu e queimou completamente o sacrifício, a lenha, as pedras e o chão, e também secou totalmente a água na valeta."', ref:'1 Reis 18:38',
+    nota:'Efeito de fogo — o fogo do Senhor cai e consome tudo (1 Reis 18:38). Deixe no ar, suba a intensidade da voz e siga para a cruz.' },
 
   { tipo:'m', layout:'titulo', cena:'luz', cruz:true, tam:'media', rotulo:'M14 · Jesus e a cruz',
     titulo:'JESUS ENTREGOU TUDO\nPARA TRAZER NOSSO <em>CORAÇÃO</em> DE VOLTA',
@@ -430,7 +435,8 @@ function htmlMensagem(s){
       flamas.forEach((f,k)=>{ ch+=`<div class="chama" style="left:${f[0]}%;width:${f[1]}%;height:${f[2]}%;--d:${(2+((k*7)%9)/10).toFixed(1)}s;animation-delay:${(k*0.28).toFixed(2)}s"></div>`; });
       let br='';
       for(let k=0;k<16;k++){ br+=`<div class="brasa" style="left:${((k*6.1)%98+1).toFixed(0)}%;animation-duration:${(3+(k%5)).toFixed(0)}s;animation-delay:${((k*0.37)%4).toFixed(1)}s;--dx:${((k%2?1:-1)*(12+(k%4)*10))}px"></div>`; }
-      return `<div class="slide m centro fogo-fx"><div class="base-fogo"></div><div class="chamas">${ch}${br}</div>${s.titulo?`<div class="t">${linhas(s.titulo)}</div>`:''}</div>`;
+      const ftxt = (s.titulo?`<div class="t">${linhas(s.titulo)}</div>`:'') + (s.texto?`<div class="vers">${linhas(s.texto)}</div>`:'') + (s.ref?`<div class="ref">${esc(s.ref)}</div>`:'');
+      return `<div class="slide m centro fogo-fx"><div class="base-fogo"></div><div class="chamas">${ch}${br}</div><div class="fogo-txt">${ftxt}</div></div>`;
     }
     default:
       return `<div class="slide m centro">${fundo}<div class="t${tam}">${linhas(s.titulo||'')}</div></div>`;
