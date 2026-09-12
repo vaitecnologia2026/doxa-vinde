@@ -202,9 +202,25 @@ button{font:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select
 .mini-acao:hover{border-color:var(--creme-suave)}
 textarea.notas{display:block;width:100%;min-height:64px;resize:vertical;background:var(--painel-2);border:1px solid var(--borda);border-radius:10px;color:var(--creme);font-family:var(--serif-texto);font-size:17px;line-height:1.4;padding:12px 14px}
 textarea.notas::placeholder{color:var(--creme-suave)}
-.nota-status{color:var(--ok);font-size:12px;letter-spacing:.08em;opacity:0;transition:opacity .2s}
+.acoes{display:flex;align-items:center;gap:10px}
+.nota-status{color:var(--creme-suave);font-size:12px;letter-spacing:.06em;opacity:0;transition:opacity .2s}
 .nota-status.on{opacity:1}
+.nota-status.ok{color:var(--ok)}
+.nota-status.erro{color:var(--erro)}
+.mini-acao.salvar{background:var(--creme);border-color:var(--creme);color:var(--tinta);font-weight:600}
+.mini-acao.salvar:hover{background:#fff8dc}
 textarea.notas:focus{outline:none;border-color:var(--creme-suave)}
+/* efeito de fogo (tela "O fogo caiu") */
+.slide.m.fogo-fx{background:#0a0402;overflow:hidden;position:relative;justify-content:center;align-items:center;text-align:center}
+.fogo-fx .base-fogo{position:absolute;left:0;right:0;bottom:0;height:72%;z-index:0;background:radial-gradient(90% 120% at 50% 100%,rgba(255,170,40,.55),rgba(230,59,46,.33) 42%,rgba(120,20,10,0) 74%);filter:blur(8px);animation:brilho 3.2s ease-in-out infinite alternate}
+@keyframes brilho{0%{opacity:.75}100%{opacity:1}}
+.fogo-fx .chamas{position:absolute;left:0;right:0;bottom:-5%;height:82%;z-index:0}
+.fogo-fx .chama{position:absolute;bottom:0;border-radius:46% 46% 40% 40%;mix-blend-mode:screen;filter:blur(11px);background:radial-gradient(48% 62% at 50% 80%,#fff2bd 2%,#ffb43c 26%,#ff7a1a 48%,#e6301f 66%,rgba(120,20,10,0) 80%);transform-origin:50% 100%;animation:flama var(--d,2.4s) ease-in-out infinite alternate}
+@keyframes flama{0%{transform:translateY(9%) scaleY(.8) scaleX(1.04) skewX(-3deg);opacity:.7}45%{transform:translateY(-7%) scaleY(1.2) scaleX(.88) skewX(4deg);opacity:1}100%{transform:translateY(3%) scaleY(.95) scaleX(1.07) skewX(-1deg);opacity:.9}}
+.fogo-fx .brasa{position:absolute;bottom:5%;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle,#ffe6a0,#ff8a1f 55%,rgba(255,80,20,0) 72%);animation:sobe linear infinite}
+@keyframes sobe{0%{transform:translate(0,0) scale(1);opacity:0}12%{opacity:1}100%{transform:translate(var(--dx,0),-88vh) scale(.35);opacity:0}}
+.fogo-fx .t{position:relative;z-index:3;color:#fff;text-shadow:0 0 26px rgba(255,150,40,.95),0 0 70px rgba(255,90,20,.6)}
+@media (prefers-reduced-motion:reduce){.fogo-fx .chama,.fogo-fx .brasa,.fogo-fx .base-fogo{animation:none}}
 /* painel Reorganizar */
 .reorg-fundo{position:fixed;inset:0;z-index:60;background:rgba(8,5,4,.74);display:flex;align-items:flex-end;justify-content:center}
 .reorg{background:var(--painel);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;border-radius:16px 16px 0 0;border:1px solid var(--borda);box-shadow:0 -20px 60px rgba(0,0,0,.5)}
@@ -239,6 +255,8 @@ textarea.notas:focus{outline:none;border-color:var(--creme-suave)}
   #bloco-prox .rotulo:first-child{display:none}
   #bloco-prox .rotulo{font-size:13px;letter-spacing:.24em}
   #nota-status{font-size:13px}
+  .bloco .rotulo .salvar{padding:9px 20px;font-size:16px}
+  #bloco-prox .rotulo{flex-wrap:wrap;gap:8px}
   .notas,textarea.notas{font-size:22px;line-height:1.5;min-height:30vh;color:#f8efd3;background:linear-gradient(180deg,rgba(240,225,163,.08),rgba(240,225,163,.03));border:1px solid var(--borda);border-left:5px solid var(--creme);border-radius:12px;padding:16px 18px}
   .faixa{padding:6px 14px 6px}
   .faixa .rotulo{margin-bottom:6px}
@@ -327,6 +345,10 @@ const SLIDES = [
     titulo:'O SENHOR É DEUS!\nO SENHOR É DEUS!', ref:'1 Reis 18:39',
     nota:'No Carmelo o fogo caiu sobre o sacrifício; na cruz o juízo caiu sobre Cristo. Ele tomou o nosso lugar.' },
 
+  { tipo:'m', layout:'fogo', rotulo:'M13b · Fogo',
+    titulo:'FOGO! FOGO!',
+    nota:'Efeito de fogo — o fogo do Senhor cai (1 Reis 18:38). Deixe o efeito no ar, suba a intensidade da voz e siga para a cruz.' },
+
   { tipo:'m', layout:'titulo', cena:'luz', cruz:true, tam:'media', rotulo:'M14 · Jesus e a cruz',
     titulo:'JESUS ENTREGOU TUDO\nPARA TRAZER NOSSO <em>CORAÇÃO</em> DE VOLTA',
     sub:'No Carmelo, o fogo caiu sobre o sacrifício.\nNa cruz, Jesus ocupou o nosso lugar.',
@@ -402,6 +424,14 @@ function htmlMensagem(s){
       return `<div class="slide m split"><div class="lado idolos">${s.imgEsq?`<div class="foto" style="background-image:url('${s.imgEsq}')"></div><div class="veu"></div>`:''}<div class="t">${esc(s.esquerda.titulo)}</div>${s.esquerda.itens.map(p=>`<p>${esc(p)}</p>`).join('')}</div><div class="lado jesus">${s.imgDir?`<div class="foto" style="background-image:url('${s.imgDir}')"></div><div class="veu"></div>`:''}${s.cruz?CRUZ:''}<div class="t">${esc(s.direita.titulo)}</div>${s.direita.itens.map(p=>`<p>${esc(p)}</p>`).join('')}</div></div>`;
     case 'declaracao':
       return `<div class="slide m centro">${fundo}<div class="decl">${linhas(s.linhas)}</div><div class="decl grande">${linhas(s.grande)}</div>${s.fim?`<div class="fim">${linhas(s.fim)}</div>`:''}</div>`;
+    case 'fogo': {
+      let ch='';
+      const flamas=[[6,32,66],[22,42,82],[38,54,98],[54,42,84],[70,36,72],[84,32,62],[46,62,106]];
+      flamas.forEach((f,k)=>{ ch+=`<div class="chama" style="left:${f[0]}%;width:${f[1]}%;height:${f[2]}%;--d:${(2+((k*7)%9)/10).toFixed(1)}s;animation-delay:${(k*0.28).toFixed(2)}s"></div>`; });
+      let br='';
+      for(let k=0;k<16;k++){ br+=`<div class="brasa" style="left:${((k*6.1)%98+1).toFixed(0)}%;animation-duration:${(3+(k%5)).toFixed(0)}s;animation-delay:${((k*0.37)%4).toFixed(1)}s;--dx:${((k%2?1:-1)*(12+(k%4)*10))}px"></div>`; }
+      return `<div class="slide m centro fogo-fx"><div class="base-fogo"></div><div class="chamas">${ch}${br}</div>${s.titulo?`<div class="t">${linhas(s.titulo)}</div>`:''}</div>`;
+    }
     default:
       return `<div class="slide m centro">${fundo}<div class="t${tam}">${linhas(s.titulo||'')}</div></div>`;
   }
@@ -515,7 +545,7 @@ function fecharReorganizar(){ const d = document.getElementById('reorg-fundo'); 
 /* observações por tela (editáveis no controle, salvas neste aparelho) */
 function lerNotas(){ try{ const o = JSON.parse(localStorage.getItem(CHAVE_NOTAS)||'{}'); return (o && typeof o==='object') ? o : {}; }catch(_){ return {}; } }
 let notasCustom = lerNotas();
-function guardarNotas(){ try{ localStorage.setItem(CHAVE_NOTAS, JSON.stringify(notasCustom)); }catch(_){} }
+function guardarNotas(){ try{ localStorage.setItem(CHAVE_NOTAS, JSON.stringify(notasCustom)); return localStorage.getItem(CHAVE_NOTAS)!=null; }catch(_){ return false; } }
 function notaDe(i){ return (String(i) in notasCustom) ? notasCustom[i] : ((SLIDES[i] && SLIDES[i].nota) || ''); }
 let semNuvem = false;          // usuário escolheu operar só nesta máquina
 let seqNuvem = 0;              // último seq confirmado pela nuvem
@@ -755,8 +785,8 @@ function renderControle(){
         <div class="bloco" id="bloco-prox">
           <div class="rotulo"><span>Próximo</span><span id="rotulo-prox"></span></div>
           <div class="palco-wrap" id="palco-prox"></div>
-          <div class="rotulo"><span>Anotação</span><span id="nota-status" class="nota-status"></span></div>
-          <textarea class="notas" id="notas" placeholder="Escreva uma observação para esta tela..."></textarea>
+          <div class="rotulo"><span>Anotação</span><span class="acoes"><span id="nota-status" class="nota-status"></span><button class="mini-acao salvar" id="b-salvar-nota" type="button">Salvar</button></span></div>
+          <textarea class="notas" id="notas" placeholder="Escreva a sua observação para esta tela e toque em Salvar."></textarea>
         </div>
       </main>
       <div class="faixa">
@@ -779,7 +809,16 @@ function renderControle(){
     document.getElementById('b-inicio').onclick=()=>irPara(0);
     montarLista();
     document.getElementById('b-reordenar').onclick=abrirReorganizar;
-    { const ta=document.getElementById('notas'); if(ta) ta.addEventListener('input', ()=>{ const si=ta.dataset.slide; if(si===undefined||si==='') return; notasCustom[si]=ta.value; guardarNotas(); canal && canal.postMessage({nota:{i:+si, texto:ta.value}}); const st=document.getElementById('nota-status'); if(st){ st.textContent='salvo'; st.classList.add('on'); clearTimeout(st._t); st._t=setTimeout(()=>st.classList.remove('on'),1400); } }); }
+    { const ta=document.getElementById('notas'); if(ta) ta.addEventListener('input', ()=>{ const si=ta.dataset.slide; if(si===undefined||si==='') return; notasCustom[si]=ta.value; guardarNotas(); const st=document.getElementById('nota-status'); if(st){ st.textContent='alterado — toque em Salvar'; st.classList.remove('erro','ok'); st.classList.add('on'); } }); }
+    { const bs=document.getElementById('b-salvar-nota'); if(bs) bs.onclick=()=>{
+        const ta=document.getElementById('notas'); if(!ta) return;
+        const si=ta.dataset.slide; if(si==null||si==='') return;
+        notasCustom[si]=ta.value;
+        const ok=guardarNotas();
+        canal && canal.postMessage({nota:{i:+si, texto:ta.value}});
+        const st=document.getElementById('nota-status');
+        if(st){ st.classList.remove('erro','ok'); if(ok){ st.textContent='salvo ✓'; st.classList.add('ok'); } else { st.textContent='não salvou — desative a navegação privada'; st.classList.add('erro'); } st.classList.add('on'); clearTimeout(st._t); st._t=setTimeout(()=>st.classList.remove('on'), ok?2000:6000); }
+      }; }
     // deslizar na prévia: esquerda = próximo, direita = anterior
     const agora = document.getElementById('palco-agora'); let x0=null, y0=null;
     agora.addEventListener('touchstart', e=>{ const t=e.touches[0]; x0=t.clientX; y0=t.clientY; }, {passive:true});
